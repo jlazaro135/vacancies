@@ -1,0 +1,28 @@
+export const people = [
+    { id: 1, name: 'John', selectedItem: '' },
+    { id: 2, name: 'Sarah', selectedItem: '' },
+    { id: 3, name: 'Mike', selectedItem: '' },
+    { id: 4, name: 'Emily', selectedItem: '' },
+    { id: 5, name: 'David', selectedItem: '' },
+    { id: 6, name: 'Linda', selectedItem: '' },
+    { id: 7, name: 'Tom', selectedItem: '' },
+    { id: 8, name: 'Megan', selectedItem: '' },
+    { id: 9, name: 'Oliver', selectedItem: '' },
+    { id: 10, name: 'Lucy', selectedItem: '' },
+    { id: 11, name: 'Henry', selectedItem: '' },
+    { id: 12, name: 'Sophie', selectedItem: '' },
+    { id: 13, name: 'Jason', selectedItem: '' },
+    { id: 14, name: 'Grace', selectedItem: '' },
+    { id: 15, name: 'Peter', selectedItem: '' },
+    { id: 16, name: 'Emma', selectedItem: '' },
+    { id: 17, name: 'Kevin', selectedItem: '' },
+    { id: 18, name: 'Anna', selectedItem: '' },
+    { id: 19, name: 'William', selectedItem: '' },
+    { id: 20, name: 'Ava', selectedItem: '' },
+    { id: 21, name: 'Robert', selectedItem: '' },
+    { id: 22, name: 'Nora', selectedItem: '' },
+    { id: 23, name: 'Jack', selectedItem: '' },
+    { id: 24, name: 'Julia', selectedItem: '' },
+    { id: 25, name: 'Alex', selectedItem: '' }
+  ];
+  
