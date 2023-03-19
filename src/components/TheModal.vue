@@ -1,10 +1,10 @@
 <script setup>
-import { toRefs } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
-
+ 
 const useModal = useModalStore()
 
-const { modalIsOpen } = toRefs(useModal)
+const { modalIsOpen } = storeToRefs(useModal)
 
 const props = defineProps({
   destinos: {
@@ -13,7 +13,8 @@ const props = defineProps({
   },
 })
 
-const closeModal = () => modalIsOpen.value = false
+
+const emit = defineEmits(['closeModal'])
 
 </script>
 
@@ -29,7 +30,7 @@ const closeModal = () => modalIsOpen.value = false
       </p>
     </main>
     <footer>
-      <a href="#cancel" role="button" class="secondary" @click="closeModal">Cancelar</a>
+      <a href="#cancel" role="button" class="secondary" @click="emit('closeModal')">Cancelar</a>
       <a href="#confirm" role="button">Confirmar</a>
     </footer>
   </article>
