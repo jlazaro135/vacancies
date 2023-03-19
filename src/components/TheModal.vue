@@ -1,40 +1,51 @@
 <script setup>
 import { ref } from 'vue';
-import draggable from 'vuedraggable';
-import items from '../items'
 
-const selectedItems = ref(items);
+const props = defineProps({
+  destinos: {
+    type: Number,
+    default: Math.ceil(Math.random()*10)
+  },
+  isModalOpen: {
+    type: Boolean,
+    default: true
+  }
+})
 
-const emits = defineEmits(['closeModal']);
+let isOpen = ref(props.isModalOpen)
 
-function closeModal() {
-  emits('closeModal');
-  selectedItems.value = [];
-}
+
+const closeModal = () => isOpen.value = false
+
 </script>
 
 <template>
-    <div class="modal" v-show="show">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <h2>Choose {{ selectedPerson.name }}'s items:</h2>
-        <div class="item-list">
-          <label v-for="(item, index) in availableItems" :key="item.id">
-            <input type="checkbox" v-model="selectedItems" :value="item" />
-            {{ item.name }}
-          </label>
-        </div>
-        <draggable v-model="selectedItems" class="drag-container">
-          <div v-for="(item, index) in selectedItems" :key="item.id" class="drag-item">
-            <span class="drag-handle">&#x2195;</span>
-            {{ item.name }}
-          </div>
-        </draggable>
-      </div>
-    </div>
-  </template>
+<dialog :open="isOpen">
+  <article>
+    <h3>Selecciona {{ destinos }} destinos</h3>
+    <main>
+      <p>
+        Mauris non nibh vel nisi sollicitudin malesuada. 
+        Donec ut sagittis erat. Praesent eu eros felis. 
+        Ut consectetur placerat pulvinar.
+      </p>
+    </main>
+    <footer>
+      <a href="#cancel" role="button" class="secondary" @click="closeModal">Cancelar</a>
+      <a href="#confirm" role="button">Confirmar</a>
+    </footer>
+  </article>
+</dialog>
+</template>
   
-  <style>
-  /* Styles for the modal */
-  </style>
+<style>
+dialog article{
+max-width: 100%;
+}
+
+main{
+  max-height: 50vh;
+  overflow: auto;
+}
+</style>
   
