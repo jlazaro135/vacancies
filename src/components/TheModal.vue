@@ -1,26 +1,24 @@
 <script setup>
-import { ref } from 'vue';
+import { toRefs } from 'vue';
+import { useModalStore } from '../stores/modal'
+
+const useModal = useModalStore()
+
+const { modalIsOpen } = toRefs(useModal)
 
 const props = defineProps({
   destinos: {
     type: Number,
     default: Math.ceil(Math.random()*10)
   },
-  isModalOpen: {
-    type: Boolean,
-    default: true
-  }
 })
 
-let isOpen = ref(props.isModalOpen)
-
-
-const closeModal = () => isOpen.value = false
+const closeModal = () => modalIsOpen.value = false
 
 </script>
 
 <template>
-<dialog :open="isOpen">
+<dialog :open="modalIsOpen">
   <article>
     <h3>Selecciona {{ destinos }} destinos</h3>
     <main>

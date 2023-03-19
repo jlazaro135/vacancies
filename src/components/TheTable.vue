@@ -1,5 +1,19 @@
 <script setup>
+import { toRefs } from 'vue';
+
+
 import TheModal from './TheModal.vue'
+import { useModalStore } from '../stores/modal'
+
+const useModal = useModalStore()
+
+let {modalIsOpen} = toRefs(useModal)
+
+console.log(modalIsOpen.value)
+
+let openModal = () => {
+    modalIsOpen.value = true
+}
 
 const names = [
     {
@@ -150,13 +164,13 @@ const names = [
             <td class="destino">{{ name.destino }}</td>
             <td>{{ name.ciudad }}</td>
             <td>
-                <p role="link" style="margin: 0;">Elegir destinos</p>
+                <p role="link" style="margin: 0;" @click="openModal">Elegir destinos</p>
             </td>
             </tr>
         </tbody>
         </table>
     </figure>
-    <TheModal />
+    <TheModal :modalIsOpen="modalIsOpen"/>
   </template>
   
 <style scoped>
