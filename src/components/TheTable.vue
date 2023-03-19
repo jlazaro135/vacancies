@@ -9,6 +9,8 @@ const useModal = useModalStore()
 let { modalIsOpen } = storeToRefs(useModal)
 
 let position = ref(null)
+let nombre = ref('')
+
 
 const names = [
     {
@@ -147,7 +149,7 @@ const animationDuration = 400; // ms
 
 let openModal = (name, index) => {
     position.value = Number(index) + 1
-    console.log(position.value)
+    nombre.value = name.name
     if (isScrollbarVisible()) {
     document.documentElement.style.setProperty('--scrollbar-width', `${getScrollbarWidth()}px`);
   }
@@ -202,7 +204,6 @@ const isScrollbarVisible = () => {
 <template>
     <figure>
         <table role="grid">
-            {{ modalIsOpen }}
         <thead>
             <tr>
             <th>Position</th>
@@ -228,6 +229,7 @@ const isScrollbarVisible = () => {
     <TheModal 
     @closeModal="closeModal"
     :destinos=position
+    :nombre="nombre"
     />
   </template>
   
