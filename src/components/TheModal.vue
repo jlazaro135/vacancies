@@ -1,10 +1,16 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
+import { destinies } from '../js/destinies';
+import { ref } from 'vue';
  
 const useModal = useModalStore()
 
+
 const { modalIsOpen } = storeToRefs(useModal)
+
+const getDestinies = ref(destinies)
+
 
 const props = defineProps({
   destinos: {
@@ -28,49 +34,18 @@ const emit = defineEmits(['closeModal'])
     <main>
       <div class="box-wrapper">
         <div class="box">
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
-          </div>
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
-          </div>
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
-          </div>
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
-          </div>
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
-          </div>
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
-          </div>
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
-          </div>
-          <div class="item-card">
-            <p>Destino: Centro social de mis huevos morenos</p>
-            <p>Ciudad: Sevilla</p>
-            <p>Código: 12345xssd</p>
+          <div class="item-card" v-for="destiny in getDestinies">
+            <p>Destino: {{ destiny.destino }}</p>
+            <p>Ciudad: {{ destiny.ciudad }}</p>
+            <p>Código: {{ destiny.code }}</p>
           </div>
         </div>
         <div class="box">
-          derecha
+          <div class="item-card" v-for="destiny in getDestinies">
+            <p>Destino: {{ destiny.destino }}</p>
+            <p>Ciudad: {{ destiny.ciudad }}</p>
+            <p>Código: {{ destiny.code }}</p>
+          </div>
         </div>
       </div>
     </main>
