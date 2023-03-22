@@ -1,4 +1,5 @@
 <script setup>
+
 import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
@@ -44,19 +45,37 @@ const emit = defineEmits(['closeModal'])
   <article>
     <h5>{{ nombre }} - destinos a seleccionar: {{ destinos }}</h5>
     <main>
-      <div class="box-wrapper">
-        <div class="box">
-          <div class="item-card" v-for="destiny in getDestinies" @click="console1(destiny.code)">
-            <p>Destino: {{ destiny.destino }}</p>
-            <p>Ciudad: {{ destiny.ciudad }}</p>
-            <p>Código: {{ destiny.code }}</p>
+      <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Destinos a elegir
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <div class="item-card" v-for="destiny in getDestinies" @click="console1(destiny.code)">
+                  <p>Destino: {{ destiny.destino }}</p>
+                  <p>Ciudad: {{ destiny.ciudad }}</p>
+                  <p>Código: {{ destiny.code }}</p>
+                </div>
+            </div>
           </div>
         </div>
-        <div class="box">
-          <div class="item-card" v-for="destiny in chosenDestinies">
-            <p>Destino: {{ destiny.destino }}</p>
-            <p>Ciudad: {{ destiny.ciudad }}</p>
-            <p>Código: {{ destiny.code }}</p>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Destinos elegidos
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <div class="item-card" v-for="destiny in chosenDestinies">
+                  <p>Destino: {{ destiny.destino }}</p>
+                  <p>Ciudad: {{ destiny.ciudad }}</p>
+                  <p>Código: {{ destiny.code }}</p>
+                </div>
+            </div>
           </div>
         </div>
       </div>
@@ -114,6 +133,7 @@ max-width: 100%;
   position: relative;
   left: 0;
   top: 0;
+  margin: 1rem 0;
 }
 
 .item-card:hover{
