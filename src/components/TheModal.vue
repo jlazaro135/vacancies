@@ -15,13 +15,25 @@ const getDestinies = ref(destinies)
 const props = defineProps({
   destinos: {
     type: Number,
-    default: Math.ceil(Math.random()*10)
   },
   nombre:{
     type: String,
   }
 })
 
+
+const chosenDestinies = ref([])
+
+function console1(chosenCode){
+  console.log(chosenDestinies.value.length, props.destinos)
+  if(chosenDestinies.value.length >= props.destinos){
+    console.log('ya está')
+    return
+  }
+  chosenDestinies.value.push(getDestinies.value.find(destiny => destiny.code === chosenCode))
+}
+
+console.log(chosenDestinies.value)
 
 const emit = defineEmits(['closeModal'])
 
@@ -34,14 +46,14 @@ const emit = defineEmits(['closeModal'])
     <main>
       <div class="box-wrapper">
         <div class="box">
-          <div class="item-card" v-for="destiny in getDestinies">
+          <div class="item-card" v-for="destiny in getDestinies" @click="console1(destiny.code)">
             <p>Destino: {{ destiny.destino }}</p>
             <p>Ciudad: {{ destiny.ciudad }}</p>
             <p>Código: {{ destiny.code }}</p>
           </div>
         </div>
         <div class="box">
-          <div class="item-card" v-for="destiny in getDestinies">
+          <div class="item-card" v-for="destiny in chosenDestinies">
             <p>Destino: {{ destiny.destino }}</p>
             <p>Ciudad: {{ destiny.ciudad }}</p>
             <p>Código: {{ destiny.code }}</p>
