@@ -3,7 +3,7 @@
 import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
  
 const useModal = useModalStore()
 
@@ -11,7 +11,6 @@ const useModal = useModalStore()
 const { modalIsOpen } = storeToRefs(useModal)
 
 const getDestinies = ref(destinies)
-
 
 const props = defineProps({
   destinos: {
@@ -22,19 +21,23 @@ const props = defineProps({
   }
 })
 
+const destinyRef = ref(null)
+
+watchEffect(() => destinyRef.value = props.destinos);
+
+console.log(destinyRef.value)
+
+const allAreChosen = ref(false)
 
 const chosenDestinies = ref([])
 
-function console1(chosenCode){
-  console.log(chosenDestinies.value.length, props.destinos)
-  if(chosenDestinies.value.length >= props.destinos){
-    console.log('ya está')
-    return
-  }
+function checkDestiniesChosen(chosenCode){
   chosenDestinies.value.push(getDestinies.value.find(destiny => destiny.code === chosenCode))
+  destinyRef.value = props.destinos - chosenDestinies.value.length
+  if(chosenDestinies.value.length >= props.destinos){
+    allAreChosen.value = true
+  }
 }
-
-console.log(chosenDestinies.value)
 
 const emit = defineEmits(['closeModal'])
 
@@ -43,18 +46,18 @@ const emit = defineEmits(['closeModal'])
 <template>
 <dialog :open="modalIsOpen">
   <article>
-    <h5>{{ nombre }} - destinos a seleccionar: {{ destinos }}</h5>
+    <h5>{{ nombre }} - destinos a seleccionar: {{ destinyRef }}</h5>
     <main>
       <div class="accordion" id="accordionExample">
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <button class="" :class="!allAreChosen ? '' : 'collapsed'" type="button" data-bs-toggle="collapse" data-bs-target="" aria-expanded="true" aria-controls="collapseOne">
               Destinos a elegir
             </button>
           </h2>
-          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+          <div id="collapseOne" class="accordion-collapse" :class="!allAreChosen ? 'collapse show' : 'collapse'" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-                <div class="item-card" v-for="destiny in getDestinies" @click="console1(destiny.code)">
+                <div class="item-card" v-for="destiny in getDestinies" @click="checkDestiniesChosen(destiny.code)">
                   <p>Destino: {{ destiny.destino }}</p>
                   <p>Ciudad: {{ destiny.ciudad }}</p>
                   <p>Código: {{ destiny.code }}</p>
@@ -64,11 +67,11 @@ const emit = defineEmits(['closeModal'])
         </div>
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingTwo">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            <button class="" :class="allAreChosen ? '' : 'collapsed'" type="button" data-bs-toggle="collapse" data-bs-target="" aria-expanded="false" aria-controls="collapseTwo">
               Destinos elegidos
             </button>
           </h2>
-          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+          <div id="collapseTwo" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapse'" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
             <div class="accordion-body">
                 <div class="item-card" v-for="destiny in chosenDestinies">
                   <p>Destino: {{ destiny.destino }}</p>
