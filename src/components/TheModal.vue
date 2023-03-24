@@ -25,13 +25,16 @@ const destinyRef = ref(null)
 
 watchEffect(() => destinyRef.value = props.destinos);
 
-console.log(destinyRef.value)
-
 const allAreChosen = ref(false)
 
 const chosenDestinies = ref([])
 
 function checkDestiniesChosen(chosenCode){
+  if(chosenDestinies.value.find(destiny => destiny.code === chosenCode)){
+    console.log(chosenDestinies.value.find(destiny => destiny.code === chosenCode))
+    console.log('ya existe, coge otro')
+    return
+  }
   chosenDestinies.value.push(getDestinies.value.find(destiny => destiny.code === chosenCode))
   destinyRef.value = props.destinos - chosenDestinies.value.length
   if(chosenDestinies.value.length >= props.destinos){
@@ -73,10 +76,16 @@ const emit = defineEmits(['closeModal'])
           </h2>
           <div id="collapseTwo" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapse'" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-                <div class="item-card" v-for="destiny in chosenDestinies">
-                  <p>Destino: {{ destiny.destino }}</p>
-                  <p>Ciudad: {{ destiny.ciudad }}</p>
-                  <p>Código: {{ destiny.code }}</p>
+                <div class="item-card" v-for="destiny, index in chosenDestinies">
+                  <div class="mb-1 p-1 text-center bg-info text-white fw-bold">Posición {{ index + 1 }}</div>
+                  <div>
+                    <p>Destino: {{ destiny.destino }}</p>
+                    <p>Ciudad: {{ destiny.ciudad }}</p>
+                    <p>Código: {{ destiny.code }}</p>
+                  </div>
+                  <div>
+                    <a href="#">Eliminar</a>
+                  </div>
                 </div>
             </div>
           </div>
@@ -129,23 +138,13 @@ max-width: 100%;
 .item-card{
   background-color: rgb(233, 233, 233);
   padding: 0.5rem;
-  border: 1px solid gray;
+  border: 3px solid transparent;
   cursor: pointer;
-  box-shadow: 0;
-  transition: box-shadow 0.3s ease-out;
-  position: relative;
-  left: 0;
-  top: 0;
   margin: 1rem 0;
 }
 
 .item-card:hover{
-  background-color: rgb(233, 233, 233);
-  box-shadow: 5px 5px rgb(44, 44, 44);
-  padding: 0.5rem;
-  transition: box-shadow 0.3s ease-out, left 0.3s ease-out, top 0.3s ease-out;
-  left: -5px;
-  top: -5px;
+  border-color: gray
 }
 
 p{
