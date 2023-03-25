@@ -212,14 +212,14 @@ p{
   padding: 1rem;
   border-top: 0;
   overflow: hidden;
-  max-height: 100vh;
-  transition: max-height, padding ease-in-out 0.3s;
+  max-height: auto;
+  transition:  padding ease-in-out 0.5s;
 }
 
 .collapsed{
   max-height: 0;
   padding: 0;
-  transition: max-height, padding ease-in-out 0.3s;
+  transition: padding ease-in-out 0.5s;
 
 }
 
