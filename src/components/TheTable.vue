@@ -206,8 +206,8 @@ const isScrollbarVisible = () => {
         <table role="grid">
         <thead>
             <tr>
-            <th>Position</th>
-            <th>Name</th>
+            <th>Posición</th>
+            <th>Nombre</th>
             <th>Destino</th>
             <th>Ciudad</th>
             <th> </th>

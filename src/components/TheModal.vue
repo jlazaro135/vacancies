@@ -4,13 +4,6 @@ import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
 import { ref, watchEffect } from 'vue';
- 
-const useModal = useModalStore()
-
-
-const { modalIsOpen } = storeToRefs(useModal)
-
-const getDestinies = ref(destinies)
 
 const props = defineProps({
   destinos: {
@@ -21,7 +14,16 @@ const props = defineProps({
   }
 })
 
+ 
+const useModal = useModalStore()
+
+const { modalIsOpen } = storeToRefs(useModal)
+
+const getDestinies = ref(destinies)
+
 const destinyRef = ref(null)
+
+const isSelectable = ref(true)
 
 watchEffect(() => destinyRef.value = props.destinos);
 
@@ -33,12 +35,15 @@ function checkDestiniesChosen(chosenCode){
   if(chosenDestinies.value.find(destiny => destiny.code === chosenCode.code)){
     let indexOfDestiny = chosenDestinies.value.indexOf(chosenCode)
     chosenDestinies.value.splice(indexOfDestiny, 1 )
+    destinyRef.value = props.destinos - chosenDestinies.value.length
     return
   }
   chosenDestinies.value.push(getDestinies.value.find(destiny => destiny.code === chosenCode.code))
   destinyRef.value = props.destinos - chosenDestinies.value.length
   if(chosenDestinies.value.length >= props.destinos){
     allAreChosen.value = true
+    isSelectable.value = false
+    return
   }
 }
 
@@ -49,16 +54,23 @@ const emit = defineEmits(['closeModal'])
 <template>
 <dialog :open="modalIsOpen">
   <article>
-    <h5 class="destinies-counter">{{ nombre }} - destinos a seleccionar: {{ destinyRef }}</h5>
+    <h5 class="destinies-counter">{{ nombre }} - 
+      <span v-if="isSelectable"> 
+        destinos a seleccionar: {{ destinyRef }}
+      </span>
+      <span v-else>
+        Ordena los destinos
+      </span>
+  </h5>
     <main>
       <div class="accordion" id="accordionExample">
         <div class="accordion-item">
-          <h3 class="heading">
+          <h3 class="heading" :class="allAreChosen ? 'h-disabled' : ''">
               Paso 1: Elegir destinos
               <span style="font-size: 12px;">- Ordénalos en el siguiente paso</span>
           </h3>
-          <div id="collapseOne" class="accordion-collapse" :class="!allAreChosen ? 'collapse show' : 'collapse'" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-            <div class="item-card" v-for="destiny, index in getDestinies" @click="checkDestiniesChosen(destiny)" :class="{'is-selected': chosenDestinies.find(chosenDestiny => chosenDestiny.code === destiny.code)}">
+          <div id="collapseOne" class="accordion-collapse" :class="!allAreChosen ? 'collapse show' : 'collapsed'" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="item-card" v-for="destiny in getDestinies" @click="checkDestiniesChosen(destiny)" :class="{'is-selected': chosenDestinies.find(chosenDestiny => chosenDestiny.code === destiny.code)}">
               <p class="item-p">Destino: {{ destiny.destino }}</p>
               <p class="item-p">Ciudad: {{ destiny.ciudad }}</p>
               <p class="item-p">Código: {{ destiny.code }}</p>
@@ -66,12 +78,10 @@ const emit = defineEmits(['closeModal'])
           </div>
         </div>
         <div class="accordion-item">
-          <h2 class="accordion-header" id="headingTwo">
-            <button class="" :class="allAreChosen ? '' : 'collapsed'" type="button" data-bs-toggle="collapse" data-bs-target="" aria-expanded="false" aria-controls="collapseTwo">
-              Destinos elegidos
-            </button>
-          </h2>
-          <div id="collapseTwo" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapse'" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+          <h3 class="heading" :class="!allAreChosen ? 'h-disabled' : ''">
+              Paso 2: Ordena los destinos elegidos
+          </h3>
+          <div id="collapseTwo" class="accordion-collapse" :class="allAreChosen ? 'show' : 'collapsed'" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
             <div class="accordion-body">
                 <div class="item-card" v-for="destiny, index in chosenDestinies">
                   <div class="mb-1 p-1 text-center bg-info text-white fw-bold">Posición {{ index + 1 }}</div>
@@ -167,23 +177,25 @@ max-width: 100%;
   background-color: rgb(196, 255, 196);
   border-color: darkgreen;
   position: relative;
-  overflow: hidden;
   z-index: 0;
 }
 
 .is-selected:after{
-  content: 'Elegido';
-    width: 193px;
-    height: 41px;
+  content: '✓';
+    display: grid;
+    place-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0.5rem;
     text-align: center;
     position: absolute;
-    background-color: darkgreen;
-    padding: 0.5rem;
+    background-color: green;
+    border: 1px solid darkgreen;
     color: white;
-    top: 10px;
-    right: -59px;
-    transform: rotate(43deg);
+    top: 5px;
+    right: 5px;
     font-size: 17px;
+    border-radius: 50%;
 }
 
 
@@ -198,14 +210,32 @@ p{
   gap: 0.5rem;
   border: 1px solid gray;
   padding: 1rem;
+  border-top: 0;
+  overflow: hidden;
+  max-height: 100vh;
+  transition: max-height, padding ease-in-out 0.3s;
+}
+
+.collapsed{
+  max-height: 0;
+  padding: 0;
+  transition: max-height, padding ease-in-out 0.3s;
+
 }
 
 .heading{
   padding: 1rem;
-  background-color: lightcyan;
+  background-color: #fff5db;
   border: 1px solid gray;
-  border-bottom: 0;
-  margin: 0
+  margin: 0;
+  overflow: hidden;
 }
+
+.h-disabled{
+  background-color: lightgray;
+  color: gray;
+  cursor: not-allowed;
+}
+
 </style>
   
