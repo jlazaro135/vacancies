@@ -12,7 +12,7 @@ let { modalIsOpen } = storeToRefs(useModal)
 let position = ref(null)
 let nombre = ref('')
 let id = ref(null)
-let destiniesFromStorage = ref()
+let destiniesFromStorage = ref(getDestiniesFromStorage())
 
 const arrayPeople = ref(people)
 
@@ -85,25 +85,18 @@ function getDestiniesFromStorage(){
 
 let destiniesAccumulatorArr = []
 
-function calculateDestiny(personId){
-    let personFound = destiniesFromStorage ? destiniesFromStorage.find(destiny=> destiny.id === personId) : '';
-    if(personFound){
-        for (let i = 0; personFound.destiniesArr.length > i; i++){
-            if(destiniesAccumulatorArr.some(code => code === personFound.id) || destiniesAccumulatorArr.some(code => code === personFound.destiniesArr[i].code))return
-            
-            destiniesAccumulatorArr = [...destiniesAccumulatorArr, personFound.destiniesArr[i].code, personFound.id]
-            return personFound.destiniesArr[i].destino
-            
-        }
+const copyDestiniesFromStorage = [...destiniesFromStorage.value ?? []]
+console.log(copyDestiniesFromStorage)
+
+arrayPeople.value.forEach((people, index) => {
+    destiniesAccumulatorArr.push(people.destiniesArr.code)
+    if(copyDestiniesFromStorage.some(destiny => destiny.id === people.id)){
+        people.destino = copyDestiniesFromStorage[index].destiniesArr[0].destino
     }
-    return null
-}
-
-
-onBeforeMount(() => {
-    destiniesFromStorage = getDestiniesFromStorage()
 })
-  
+
+
+
 </script>
 
 <template>
@@ -122,7 +115,7 @@ onBeforeMount(() => {
             <tr v-for="(person, index) in arrayPeople" :key="person.id">
             <td>{{ index + 1 }}</td>
             <td>{{ person.name }}</td>
-            <td class="destino">{{ calculateDestiny(person.id) ?? 'hola' }}</td>
+            <td class="destino">{{ person.destino }}</td>
             <td>{{ person.ciudad }}</td>
             <td>
                 <p role="link" style="margin: 0;" @click="openModal(person, index)">Elegir destinos</p>
