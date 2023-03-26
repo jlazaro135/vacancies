@@ -12,6 +12,10 @@ const props = defineProps({
   },
   nombre:{
     type: String,
+  },
+  id:{
+    type:  Number,
+
   }
 })
 
@@ -24,11 +28,16 @@ const getDestinies = ref(destinies)
 
 const destinyRef = ref(null)
 
+const idRef = ref(null)
+
 const modalScroll = ref(null)
 
 const isSelectable = ref(true)
 
-watchEffect(() => destinyRef.value = props.destinos);
+watchEffect(() => {
+  destinyRef.value = props.destinos
+  idRef.value = props.id
+});
 
 const allAreChosen = ref(false)
 
@@ -63,11 +72,35 @@ const emit = defineEmits(['closeModalEmit'])
 
 function closeModal(){
   emit('closeModalEmit')
-  chosenDestinies.value.length = 0
-  destinyRef.value = props.destinos - chosenDestinies.value.length
-  allAreChosen.value = false
-  isSelectable.value = true
-  modalScroll.value.scrollTo(0,0);
+  location.reload()
+}
+
+function sendDestinies(){
+  if(localStorage.getItem('destiniesArr')){
+    const destiniesArrStringFromStorage = localStorage.getItem('destiniesArr')
+    const destiniesArrFromStoraege = JSON.parse(destiniesArrStringFromStorage)
+    const destiniesArr = [...destiniesArrFromStoraege,
+      {
+      id: idRef.value,
+      destiniesArr: chosenDestinies.value
+      } 
+    ]
+    const destiniesArrString = JSON.stringify(destiniesArr)
+    localStorage.setItem("destiniesArr", destiniesArrString);
+    modalIsOpen.value = false
+    location.reload()
+    return
+  }
+
+  const destiniesArr = [{
+    id: idRef.value,
+    destiniesArr: chosenDestinies.value
+  }]
+  
+  const destiniesArrString = JSON.stringify(destiniesArr)
+  localStorage.setItem("destiniesArr", destiniesArrString);
+  location.reload()
+  modalIsOpen.value = false
 }
 
 </script>
@@ -123,7 +156,7 @@ function closeModal(){
     </main>
     <footer>
       <a href="#cancel" role="button" class="secondary" @click="closeModal()">Cancelar</a>
-      <a href="#confirm" role="button">Confirmar</a>
+      <a href="#confirm" role="button" @click="sendDestinies()">Confirmar</a>
     </footer>
   </article>
 </dialog>

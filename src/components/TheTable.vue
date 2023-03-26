@@ -1,8 +1,9 @@
 <script setup>
+import { people} from '../js/people';
 import TheModal from './TheModal.vue'
 import { useModalStore } from '../stores/modal.js'
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 
 const useModal = useModalStore()
 
@@ -10,135 +11,11 @@ let { modalIsOpen } = storeToRefs(useModal)
 
 let position = ref(null)
 let nombre = ref('')
+let id = ref(null)
+let destiniesFromStorage = ref()
 
+const arrayPeople = ref(people)
 
-const names = [
-    {
-        name: 'Alice',
-        destino: 'Consejería de Familia política social y educación ton to',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Destino sin elegir'
-    },
-    {
-        name: 'Alice Montalbán Vazquez',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-    {
-        name: 'Alice',
-        destino: 'Consejería de mis huevos morenos',
-        ciudad: 'Málaga'
-    },
-
-];
 
 // Config
 const isOpenClass = 'modal-is-open';
@@ -150,6 +27,7 @@ const animationDuration = 400; // ms
 let openModal = (name, index) => {
     position.value = Number(index) + 1
     nombre.value = name.name
+    id.value = name.id
     if (isScrollbarVisible()) {
     document.documentElement.style.setProperty('--scrollbar-width', `${getScrollbarWidth()}px`);
   }
@@ -198,6 +76,32 @@ return scrollbarWidth;
 const isScrollbarVisible = () => {
   return document.body.scrollHeight > screen.height;
 }
+
+function getDestiniesFromStorage(){
+    let destiniesArrString = localStorage.getItem('destiniesArr')
+    let destiniesArr = JSON.parse(destiniesArrString)
+    return destiniesArr
+}
+
+let destiniesAccumulatorArr = []
+
+function calculateDestiny(personId){
+    let personFound = destiniesFromStorage ? destiniesFromStorage.find(destiny=> destiny.id === personId) : '';
+    if(personFound){
+        for (let i = 0; personFound.destiniesArr.length > i; i++){
+            if(destiniesAccumulatorArr.some(code => code === personFound.id))return
+            if(!destiniesAccumulatorArr.some(code => code === personFound.destiniesArr[i].code)){
+                destiniesAccumulatorArr = [...destiniesAccumulatorArr, personFound.destiniesArr[i].code, personFound.id]
+                return personFound.destiniesArr[i].destino
+            }
+        }
+    }
+    return 'Destino no elegido'
+}
+
+onBeforeMount(() => {
+    destiniesFromStorage = getDestiniesFromStorage()
+})
   
 </script>
 
@@ -214,13 +118,13 @@ const isScrollbarVisible = () => {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(name, index) in names" :key="names.index">
+            <tr v-for="(person, index) in arrayPeople" :key="person.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ name.name }}</td>
-            <td class="destino">{{ name.destino }}</td>
-            <td>{{ name.ciudad }}</td>
+            <td>{{ person.name }}</td>
+            <td class="destino">{{ calculateDestiny(person.id) }}</td>
+            <td>{{ person.ciudad }}</td>
             <td>
-                <p role="link" style="margin: 0;" @click="openModal(name, index)">Elegir destinos</p>
+                <p role="link" style="margin: 0;" @click="openModal(person, index)">Elegir destinos</p>
             </td>
             </tr>
         </tbody>
@@ -230,6 +134,7 @@ const isScrollbarVisible = () => {
     @closeModalEmit="closeModal"
     :destinos=position
     :nombre="nombre"
+    :id="id"
     />
   </template>
   
