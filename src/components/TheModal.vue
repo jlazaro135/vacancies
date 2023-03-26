@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
 import { ref, watchEffect } from 'vue';
+import draggable from 'vuedraggable';
 
 const props = defineProps({
   destinos: {
@@ -22,6 +23,8 @@ const { modalIsOpen } = storeToRefs(useModal)
 const getDestinies = ref(destinies)
 
 const destinyRef = ref(null)
+
+const modalScroll = ref(null)
 
 const isSelectable = ref(true)
 
@@ -43,17 +46,35 @@ function checkDestiniesChosen(chosenCode){
   if(chosenDestinies.value.length >= props.destinos){
     allAreChosen.value = true
     isSelectable.value = false
+    window.scrollTo(0,0);
     return
   }
 }
 
-const emit = defineEmits(['closeModal'])
+function deleteDestiny(destiny){
+  let indexOfDestiny = chosenDestinies.value.indexOf(destiny.code)
+  chosenDestinies.value.splice(indexOfDestiny, 1 )
+  destinyRef.value = props.destinos - chosenDestinies.value.length
+  allAreChosen.value = false
+  isSelectable.value = true
+  window.scrollTo(0,0);
+}
+const emit = defineEmits(['closeModalEmit'])
+
+function closeModal(){
+  emit('closeModalEmit')
+  chosenDestinies.value.length = 0
+  destinyRef.value = props.destinos - chosenDestinies.value.length
+  allAreChosen.value = false
+  isSelectable.value = true
+  modalScroll.value.scrollTo(0,0);
+}
 
 </script>
 
 <template>
 <dialog :open="modalIsOpen">
-  <article>
+  <article ref="modalScroll">
     <h5 class="destinies-counter">{{ nombre }} - 
       <span v-if="isSelectable"> 
         destinos a seleccionar: {{ destinyRef }}
@@ -61,7 +82,8 @@ const emit = defineEmits(['closeModal'])
       <span v-else>
         Ordena los destinos
       </span>
-  </h5>
+    </h5>
+    <a class="close" @click="closeModal()"></a>
     <main>
       <div class="accordion" id="accordionExample">
         <div class="accordion-item">
@@ -69,7 +91,7 @@ const emit = defineEmits(['closeModal'])
               Paso 1: Elegir destinos
               <span style="font-size: 12px;">- Ordénalos en el siguiente paso</span>
           </h3>
-          <div id="collapseOne" class="accordion-collapse" :class="!allAreChosen ? 'collapse show' : 'collapsed'" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+          <div id="collapseOne" class="accordion-collapse" :class="!allAreChosen ? 'collapse show' : 'collapsed'">
             <div class="item-card" v-for="destiny in getDestinies" @click="checkDestiniesChosen(destiny)" :class="{'is-selected': chosenDestinies.find(chosenDestiny => chosenDestiny.code === destiny.code)}">
               <p class="item-p">Destino: {{ destiny.destino }}</p>
               <p class="item-p">Ciudad: {{ destiny.ciudad }}</p>
@@ -81,26 +103,26 @@ const emit = defineEmits(['closeModal'])
           <h3 class="heading" :class="!allAreChosen ? 'h-disabled' : ''">
               Paso 2: Ordena los destinos elegidos
           </h3>
-          <div id="collapseTwo" class="accordion-collapse" :class="allAreChosen ? 'show' : 'collapsed'" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-                <div class="item-card" v-for="destiny, index in chosenDestinies">
-                  <div class="mb-1 p-1 text-center bg-info text-white fw-bold">Posición {{ index + 1 }}</div>
-                    <div>
-                      <p>Destino: {{ destiny.destino }}</p>
-                      <p>Ciudad: {{ destiny.ciudad }}</p>
-                      <p>Código: {{ destiny.code }}</p>
-                    </div>
-                  <div>
-                    <a href="#">Eliminar</a>
-                  </div>
-                </div>
-            </div>
-          </div>
+          <draggable v-model="chosenDestinies" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapsed'" tag="div" :animation="300" itemKey="draggeable">
+            <template #item="{ element: destiny }">
+              <div class="item-card">
+                <div class="mb-1 p-1 text-center bg-info text-white fw-bold">Posición {{ chosenDestinies.indexOf(destiny) + 1 }}</div>
+                <div>
+                <p>Destino: {{ destiny.destino }}</p>
+                <p>Ciudad: {{ destiny.ciudad }}</p>
+                <p>Código: {{ destiny.code }}</p>
+              </div>
+              <div>
+                <a href="#" @click="deleteDestiny(destiny)">Eliminar</a>
+              </div>
+              </div>
+            </template>
+          </draggable>
         </div>
       </div>
     </main>
     <footer>
-      <a href="#cancel" role="button" class="secondary" @click="emit('closeModal')">Cancelar</a>
+      <a href="#cancel" role="button" class="secondary" @click="closeModal()">Cancelar</a>
       <a href="#confirm" role="button">Confirmar</a>
     </footer>
   </article>

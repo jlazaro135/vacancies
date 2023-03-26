@@ -227,13 +227,16 @@ const isScrollbarVisible = () => {
         </table>
     </figure>
     <TheModal 
-    @closeModal="closeModal"
+    @closeModalEmit="closeModal"
     :destinos=position
     :nombre="nombre"
     />
   </template>
   
 <style scoped>
+    html{
+        scroll-behavior: smooth;
+    }
     .destino{
         min-width: 200px;
     }
