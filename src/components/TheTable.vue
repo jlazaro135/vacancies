@@ -89,15 +89,16 @@ function calculateDestiny(personId){
     let personFound = destiniesFromStorage ? destiniesFromStorage.find(destiny=> destiny.id === personId) : '';
     if(personFound){
         for (let i = 0; personFound.destiniesArr.length > i; i++){
-            if(destiniesAccumulatorArr.some(code => code === personFound.id))return
-            if(!destiniesAccumulatorArr.some(code => code === personFound.destiniesArr[i].code)){
-                destiniesAccumulatorArr = [...destiniesAccumulatorArr, personFound.destiniesArr[i].code, personFound.id]
-                return personFound.destiniesArr[i].destino
-            }
+            if(destiniesAccumulatorArr.some(code => code === personFound.id) || destiniesAccumulatorArr.some(code => code === personFound.destiniesArr[i].code))return
+            
+            destiniesAccumulatorArr = [...destiniesAccumulatorArr, personFound.destiniesArr[i].code, personFound.id]
+            return personFound.destiniesArr[i].destino
+            
         }
     }
-    return 'Destino no elegido'
+    return null
 }
+
 
 onBeforeMount(() => {
     destiniesFromStorage = getDestiniesFromStorage()
@@ -121,7 +122,7 @@ onBeforeMount(() => {
             <tr v-for="(person, index) in arrayPeople" :key="person.id">
             <td>{{ index + 1 }}</td>
             <td>{{ person.name }}</td>
-            <td class="destino">{{ calculateDestiny(person.id) }}</td>
+            <td class="destino">{{ calculateDestiny(person.id) ?? 'hola' }}</td>
             <td>{{ person.ciudad }}</td>
             <td>
                 <p role="link" style="margin: 0;" @click="openModal(person, index)">Elegir destinos</p>
