@@ -1,5 +1,5 @@
 <script setup>
-import { people} from '../js/people';
+import { people } from '../js/people';
 import TheModal from './TheModal.vue'
 import { useModalStore } from '../stores/modal.js'
 import { storeToRefs } from 'pinia';
@@ -12,9 +12,61 @@ let { modalIsOpen } = storeToRefs(useModal)
 let position = ref(null)
 let nombre = ref('')
 let id = ref(null)
-let destiniesFromStorage = ref(getDestiniesFromStorage())
+let destiniesFromStorage = getDestiniesFromStorage()
+let arrPeople = people
+
+
+if(destiniesFromStorage){
+    destiniesFromStorage.sort((a, b) => {
+    return a.id - b.id;
+    });
+}
+
+let destiniesChosen = []
 
 const arrayPeople = ref(people)
+
+function getDestiniesFromStorage(){
+    let destiniesArrString = localStorage.getItem('destiniesArr')
+    let destiniesArr = JSON.parse(destiniesArrString)
+    return destiniesArr
+}
+
+
+function calculateDestiny(){
+    if(!destiniesFromStorage)return
+    destiniesFromStorage.forEach((data) => {
+        let isPresent = arrPeople.some(person => person.id === data.id)
+        if(isPresent){
+            data.destiniesArr.forEach(destiny => {
+            let isCodeChosen = destiniesChosen.some(codeChosen => codeChosen === destiny.code) || destiniesChosen.some(codeChosen => codeChosen === data.id)
+            if(!isCodeChosen){
+                destiniesChosen.push(destiny.code, data.id)
+                arrPeople.forEach(person => {
+                if(data.id === person.id){ 
+                    person.destino = destiny.destino
+                    person.ciudad = destiny.ciudad
+                    person.selectedItem = true
+                }
+                })
+            }
+            })
+        }
+    })
+}
+
+function checkLength(index, selectedItem){
+    if(selectedItem){
+        let indexInStorage = destiniesFromStorage.indexOf(destiniesFromStorage[index])
+        console.log(indexInStorage, index)
+        return index !== indexInStorage
+    }
+    return false
+}
+
+onBeforeMount(() => {
+    calculateDestiny()
+})
 
 
 // Config
@@ -77,26 +129,6 @@ const isScrollbarVisible = () => {
   return document.body.scrollHeight > screen.height;
 }
 
-function getDestiniesFromStorage(){
-    let destiniesArrString = localStorage.getItem('destiniesArr')
-    let destiniesArr = JSON.parse(destiniesArrString)
-    return destiniesArr
-}
-
-let destiniesAccumulatorArr = []
-
-const copyDestiniesFromStorage = [...destiniesFromStorage.value ?? []]
-console.log(copyDestiniesFromStorage)
-
-arrayPeople.value.forEach((people, index) => {
-    destiniesAccumulatorArr.push(people.destiniesArr.code)
-    if(copyDestiniesFromStorage.some(destiny => destiny.id === people.id)){
-        people.destino = copyDestiniesFromStorage[index].destiniesArr[0].destino
-    }
-})
-
-
-
 </script>
 
 <template>
@@ -115,8 +147,12 @@ arrayPeople.value.forEach((people, index) => {
             <tr v-for="(person, index) in arrayPeople" :key="person.id">
             <td>{{ index + 1 }}</td>
             <td>{{ person.name }}</td>
-            <td class="destino">{{ person.destino }}</td>
-            <td>{{ person.ciudad }}</td>
+            <td class="destino" :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">
+                {{ person.destino }}<span v-if="checkLength(index, person.selectedItem)">*<br> 
+                    <small style="color: red; font-style: italic;font-size: 11px; line-height: 0">*Destino provisional, aspirantes con mayor prioridad aun no han rellenado sus destinos</small>
+                </span>
+            </td>
+            <td :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">{{ person.ciudad }}</td>
             <td>
                 <p role="link" style="margin: 0;" @click="openModal(person, index)">Elegir destinos</p>
             </td>
