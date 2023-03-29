@@ -55,11 +55,10 @@ function calculateDestiny(){
     })
 }
 
-function checkLength(index, selectedItem){
+function checkLength(index, selectedItem, id){
     if(selectedItem){
-        let indexInStorage = destiniesFromStorage.indexOf(destiniesFromStorage[index])
-        console.log(indexInStorage, index)
-        return index !== indexInStorage
+        console.log(index + 1 , destiniesFromStorage[index]?.id)
+        return index + 1 !== destiniesFromStorage[index]?.id
     }
     return false
 }
@@ -148,7 +147,7 @@ const isScrollbarVisible = () => {
             <td>{{ index + 1 }}</td>
             <td>{{ person.name }}</td>
             <td class="destino" :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">
-                {{ person.destino }}<span v-if="checkLength(index, person.selectedItem)">*<br> 
+                {{ person.destino }}<span v-if="checkLength(index, person.selectedItem, person.id)">*<br> 
                     <small style="color: red; font-style: italic;font-size: 11px; line-height: 0">*Destino provisional, aspirantes con mayor prioridad aun no han rellenado sus destinos</small>
                 </span>
             </td>
