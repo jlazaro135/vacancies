@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
 import { ref, watchEffect } from 'vue';
-import draggable from 'vuedraggable';
+import Draggable from 'vuedraggable';
 
 const props = defineProps({
   destinos: {
@@ -136,18 +136,18 @@ function sendDestinies(){
           <h3 class="heading" :class="!allAreChosen ? 'h-disabled' : ''">
               Paso 2: Ordena los destinos elegidos
           </h3>
-          <draggable v-model="chosenDestinies" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapsed'" tag="div" :animation="300" itemKey="draggeable">
+          <draggable v-model="chosenDestinies" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapsed'" tag="div" :animation="300" itemKey="draggeable" group="destinations">
             <template #item="{ element: destiny }">
               <div class="item-card">
                 <div class="mb-1 p-1 text-center bg-info text-white fw-bold">Posición {{ chosenDestinies.indexOf(destiny) + 1 }}</div>
                 <div>
-                <p>Destino: {{ destiny.destino }}</p>
-                <p>Ciudad: {{ destiny.ciudad }}</p>
-                <p>Código: {{ destiny.code }}</p>
-              </div>
-              <div>
-                <a href="#" @click="deleteDestiny(destiny)">Eliminar</a>
-              </div>
+                  <p>Destino: {{ destiny.destino }}</p>
+                  <p>Ciudad: {{ destiny.ciudad }}</p>
+                  <p>Código: {{ destiny.code }}</p>
+                </div>
+                <div>
+                  <a href="#" @click="deleteDestiny(destiny)">Eliminar</a>
+                </div>
               </div>
             </template>
           </draggable>
@@ -155,8 +155,8 @@ function sendDestinies(){
       </div>
     </main>
     <footer>
-      <a href="#cancel" role="button" class="secondary" @click="closeModal()">Cancelar</a>
-      <a href="#confirm" role="button" @click="sendDestinies()">Confirmar</a>
+      <button href="#cancel" role="button" class="secondary" @click="closeModal()">Cancelar</button>
+      <button href="#confirm" role="button" @click="sendDestinies()" :disabled="!allAreChosen" >Confirmar</button>
     </footer>
   </article>
 </dialog>
@@ -290,6 +290,10 @@ p{
   background-color: lightgray;
   color: gray;
   cursor: not-allowed;
+}
+
+button{
+  max-width: 140px;
 }
 
 </style>

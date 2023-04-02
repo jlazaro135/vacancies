@@ -22,6 +22,42 @@ if(destiniesFromStorage){
     });
 }
 
+console.log(destiniesFromStorage)
+
+// destiniesFromStorage.forEach((destiny, index) =>{
+//     if(destiny.id === destiniesFromStorage.at(index - 1)?.id){
+//         let idx = destiniesFromStorage.indexOf(destiniesFromStorage[index - 1])  
+
+//         destiniesFromStorage.splice(idx,1)
+//     }
+// })
+
+// console.log(destiniesFromStorage)
+
+let uniqueDestinations = [];
+
+destiniesFromStorage.forEach((element) => {
+    if (!uniqueDestinations.some(el => element.id === el.id )) {
+        uniqueDestinations.push(element);
+        return
+    }
+    let destinyFound = uniqueDestinations.find(d => d.id === element.id)
+    let idx = uniqueDestinations.indexOf(destinyFound)
+    uniqueDestinations.splice(idx, 1)
+    uniqueDestinations.push(element);
+});
+
+
+
+if(uniqueDestinations){
+    uniqueDestinations.sort((a, b) => {
+    return a.id - b.id;
+    });
+}
+
+console.log(uniqueDestinations)
+
+
 let destiniesChosen = []
 
 const arrayPeople = ref(people)
@@ -29,13 +65,13 @@ const arrayPeople = ref(people)
 function getDestiniesFromStorage(){
     let destiniesArrString = localStorage.getItem('destiniesArr')
     let destiniesArr = JSON.parse(destiniesArrString)
-    return destiniesArr
+    return destiniesArr ?? []
 }
 
 
 function calculateDestiny(){
     if(!destiniesFromStorage)return
-    destiniesFromStorage.forEach((data) => {
+    uniqueDestinations.forEach((data) => {
         let isPresent = arrPeople.some(person => person.id === data.id)
         if(isPresent){
             data.destiniesArr.forEach(destiny => {
@@ -55,10 +91,9 @@ function calculateDestiny(){
     })
 }
 
-function checkLength(index, selectedItem, id){
+function checkLength(index, selectedItem){
     if(selectedItem){
-        console.log(index + 1 , destiniesFromStorage[index]?.id)
-        return index + 1 !== destiniesFromStorage[index]?.id
+        return index + 1 !== uniqueDestinations[index]?.id
     }
     return false
 }
@@ -148,7 +183,7 @@ const isScrollbarVisible = () => {
             <td>{{ person.name }}</td>
             <td class="destino" :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">
                 {{ person.destino }}<span v-if="checkLength(index, person.selectedItem, person.id)">*<br> 
-                    <small style="color: red; font-style: italic;font-size: 11px; line-height: 0">*Destino provisional, aspirantes con mayor prioridad aun no han rellenado sus destinos</small>
+                    <small style="color: red; font-style: italic;font-size: 11px; line-height: 0">*Destino provisional, aspirantes con mayor prioridad aun no han seleccionado sus destinos</small>
                 </span>
             </td>
             <td :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">{{ person.ciudad }}</td>
