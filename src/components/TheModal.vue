@@ -3,7 +3,7 @@
 import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect, watch } from 'vue';
 import Draggable from 'vuedraggable';
 
 const props = defineProps({
@@ -14,8 +14,14 @@ const props = defineProps({
     type: String,
   },
   id:{
-    type:  Number,
+    type: Number,
 
+  },
+  hasDestinies: {
+    type: Boolean,
+  },
+  destiniesArr: {
+    type: Array
   }
 })
 
@@ -30,18 +36,30 @@ const destinyRef = ref(null)
 
 const idRef = ref(null)
 
+const hasDestiniesRef = ref(false)
+
+const destiniesArrRef = ref([])
+
 const modalScroll = ref(null)
 
 const isSelectable = ref(true)
 
-watchEffect(() => {
-  destinyRef.value = props.destinos
-  idRef.value = props.id
-});
-
 const allAreChosen = ref(false)
 
 const chosenDestinies = ref([])
+
+watchEffect(() => {
+  destinyRef.value = props.destinos
+  idRef.value = props.id
+  hasDestiniesRef.value = props.hasDestinies
+  destiniesArrRef.value = props.destiniesArr
+  if(hasDestiniesRef.value){
+    allAreChosen.value = hasDestiniesRef.value
+    chosenDestinies.value = destiniesArrRef.value
+    isSelectable.value = !destiniesArrRef.value
+  }
+});
+
 
 function checkDestiniesChosen(chosenCode){
   if(chosenDestinies.value.find(destiny => destiny.code === chosenCode.code)){
@@ -55,7 +73,7 @@ function checkDestiniesChosen(chosenCode){
   if(chosenDestinies.value.length >= props.destinos){
     allAreChosen.value = true
     isSelectable.value = false
-    window.scrollTo(0,0);
+    modalScroll.value.scrollTo(0,0);
     return
   }
 }
@@ -66,7 +84,7 @@ function deleteDestiny(destiny){
   destinyRef.value = props.destinos - chosenDestinies.value.length
   allAreChosen.value = false
   isSelectable.value = true
-  window.scrollTo(0,0);
+  modalScroll.value.scrollTo(0,0);
 }
 const emit = defineEmits(['closeModalEmit'])
 
@@ -108,12 +126,9 @@ function sendDestinies(){
 <template>
 <dialog :open="modalIsOpen">
   <article ref="modalScroll">
-    <h5 class="destinies-counter">{{ nombre }} - 
-      <span v-if="isSelectable"> 
+    <h5 class="destinies-counter" v-if="isSelectable">{{ nombre }} - 
+      <span> 
         destinos a seleccionar: {{ destinyRef }}
-      </span>
-      <span v-else>
-        Ordena los destinos
       </span>
     </h5>
     <a class="close" @click="closeModal()"></a>
@@ -136,9 +151,16 @@ function sendDestinies(){
           <h3 class="heading" :class="!allAreChosen ? 'h-disabled' : ''">
               Paso 2: Ordena los destinos elegidos
           </h3>
-          <draggable v-model="chosenDestinies" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapsed'" tag="div" :animation="300" itemKey="draggeable" group="destinations">
+          <draggable v-model="chosenDestinies" handle=".handle" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapsed'" tag="div" :animation="300" itemKey="draggeable" group="destinations">
             <template #item="{ element: destiny }">
               <div class="item-card">
+                <div class="handle">
+                  <svg viewBox="0 0 100 80" width="16" height="16">
+                    <rect width="100" height="20"></rect>
+                    <rect y="30" width="100" height="20"></rect>
+                    <rect y="60" width="100" height="20"></rect>
+                  </svg>
+                </div>
                 <div class="mb-1 p-1 text-center bg-info text-white fw-bold">Posición {{ chosenDestinies.indexOf(destiny) + 1 }}</div>
                 <div>
                   <p>Destino: {{ destiny.destino }}</p>
@@ -214,6 +236,7 @@ max-width: 100%;
 }
 
 .item-card{
+  position: relative;
   background-color: rgba(233, 233, 233, 0.521);
   padding: 0.5rem;
   border: 1px solid transparent;
@@ -294,6 +317,13 @@ p{
 
 button{
   max-width: 140px;
+}
+
+.handle{
+  position: absolute;
+  right: 2%;
+  top: 2%;
+  cursor: grab
 }
 
 </style>

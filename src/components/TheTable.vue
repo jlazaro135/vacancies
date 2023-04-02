@@ -2,75 +2,26 @@
 import { people } from '../js/people';
 import TheModal from './TheModal.vue'
 import { useModalStore } from '../stores/modal.js'
+import { useDestiniesStore } from '../stores/destiniesFromStorage.js'
 import { storeToRefs } from 'pinia';
 import { ref, onBeforeMount } from 'vue';
 
 const useModal = useModalStore()
+const useDestinies = useDestiniesStore()
+
 
 let { modalIsOpen } = storeToRefs(useModal)
+let { uniqueDestinations } = useDestinies
 
 let position = ref(null)
 let nombre = ref('')
 let id = ref(null)
-let destiniesFromStorage = getDestiniesFromStorage()
 let arrPeople = people
-
-
-if(destiniesFromStorage){
-    destiniesFromStorage.sort((a, b) => {
-    return a.id - b.id;
-    });
-}
-
-console.log(destiniesFromStorage)
-
-// destiniesFromStorage.forEach((destiny, index) =>{
-//     if(destiny.id === destiniesFromStorage.at(index - 1)?.id){
-//         let idx = destiniesFromStorage.indexOf(destiniesFromStorage[index - 1])  
-
-//         destiniesFromStorage.splice(idx,1)
-//     }
-// })
-
-// console.log(destiniesFromStorage)
-
-let uniqueDestinations = [];
-
-destiniesFromStorage.forEach((element) => {
-    if (!uniqueDestinations.some(el => element.id === el.id )) {
-        uniqueDestinations.push(element);
-        return
-    }
-    let destinyFound = uniqueDestinations.find(d => d.id === element.id)
-    let idx = uniqueDestinations.indexOf(destinyFound)
-    uniqueDestinations.splice(idx, 1)
-    uniqueDestinations.push(element);
-});
-
-
-
-if(uniqueDestinations){
-    uniqueDestinations.sort((a, b) => {
-    return a.id - b.id;
-    });
-}
-
-console.log(uniqueDestinations)
-
 
 let destiniesChosen = []
 
-const arrayPeople = ref(people)
-
-function getDestiniesFromStorage(){
-    let destiniesArrString = localStorage.getItem('destiniesArr')
-    let destiniesArr = JSON.parse(destiniesArrString)
-    return destiniesArr ?? []
-}
-
-
 function calculateDestiny(){
-    if(!destiniesFromStorage)return
+    if(!uniqueDestinations)return
     uniqueDestinations.forEach((data) => {
         let isPresent = arrPeople.some(person => person.id === data.id)
         if(isPresent){
@@ -97,6 +48,19 @@ function checkLength(index, selectedItem){
     }
     return false
 }
+
+
+function hasChosenDestinies(id){
+    return uniqueDestinations.some(destiny => destiny.id === id)
+}
+
+function passDestiniesArr(id){
+    let arrFound = uniqueDestinations.find(destiny => destiny.id === id)
+    if(arrFound)return arrFound?.destiniesArr
+    return []
+}
+
+passDestiniesArr()
 
 onBeforeMount(() => {
     calculateDestiny()
@@ -170,7 +134,7 @@ const isScrollbarVisible = () => {
         <table role="grid">
         <thead>
             <tr>
-            <th>Posición</th>
+            <th>#</th>
             <th>Nombre</th>
             <th>Destino</th>
             <th>Ciudad</th>
@@ -178,7 +142,7 @@ const isScrollbarVisible = () => {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(person, index) in arrayPeople" :key="person.id">
+            <tr v-for="(person, index) in arrPeople" :key="person.id">
             <td>{{ index + 1 }}</td>
             <td>{{ person.name }}</td>
             <td class="destino" :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">
@@ -199,6 +163,8 @@ const isScrollbarVisible = () => {
     :destinos=position
     :nombre="nombre"
     :id="id"
+    :hasDestinies="hasChosenDestinies(id)"
+    :destiniesArr="passDestiniesArr(id)"
     />
   </template>
   
