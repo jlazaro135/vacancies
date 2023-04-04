@@ -11,26 +11,28 @@ const useDestinies = useDestiniesStore()
 
 
 let { modalIsOpen } = storeToRefs(useModal)
-let { uniqueDestinations } = useDestinies
+let { uniqueDestinations } = storeToRefs(useDestinies)
 
 let position = ref(null)
 let nombre = ref('')
-let id = ref(null)
+let userId = ref(null)
 let arrPeople = people
 
 let destiniesChosen = []
 
+console.log(uniqueDestinations)
+
 function calculateDestiny(){
     if(!uniqueDestinations)return
     uniqueDestinations.forEach((data) => {
-        let isPresent = arrPeople.some(person => person.id === data.id)
+        let isPresent = arrPeople.some(person => person.userId === data.userId)
         if(isPresent){
             data.destiniesArr.forEach(destiny => {
-            let isCodeChosen = destiniesChosen.some(codeChosen => codeChosen === destiny.code) || destiniesChosen.some(codeChosen => codeChosen === data.id)
+            let isCodeChosen = destiniesChosen.some(codeChosen => codeChosen === destiny.code) || destiniesChosen.some(codeChosen => codeChosen === data.userId)
             if(!isCodeChosen){
-                destiniesChosen.push(destiny.code, data.id)
+                destiniesChosen.push(destiny.code, data.userId)
                 arrPeople.forEach(person => {
-                if(data.id === person.id){ 
+                if(data.userId === person.userId){ 
                     person.destino = destiny.destino
                     person.ciudad = destiny.ciudad
                     person.selectedItem = true
@@ -44,7 +46,7 @@ function calculateDestiny(){
 
 function checkLength(index, selectedItem){
     if(selectedItem){
-        return index + 1 !== uniqueDestinations[index]?.id
+        return index + 1 !== uniqueDestinations[index]?.userId
     }
     return false
 }
@@ -55,6 +57,7 @@ function hasChosenDestinies(id){
 }
 
 function passDestiniesArr(id){
+    console.log(uniqueDestinations)
     let arrFound = uniqueDestinations.find(destiny => destiny.id === id)
     if(arrFound)return arrFound?.destiniesArr
     return []
@@ -77,7 +80,7 @@ const animationDuration = 400; // ms
 let openModal = (name, index) => {
     position.value = Number(index) + 1
     nombre.value = name.name
-    id.value = name.id
+    userId.value = name.userId
     if (isScrollbarVisible()) {
     document.documentElement.style.setProperty('--scrollbar-width', `${getScrollbarWidth()}px`);
   }
@@ -138,22 +141,20 @@ const isScrollbarVisible = () => {
             <th>Nombre</th>
             <th>Destino</th>
             <th>Ciudad</th>
-            <th> </th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(person, index) in arrPeople" :key="person.id">
+            <tr v-for="(person, index) in arrPeople" :key="person.userId">
             <td>{{ index + 1 }}</td>
-            <td>{{ person.name }}</td>
+            <td>
+                <p role="link" style="margin: 0;" @click="openModal(person, index)">{{ person.name }} </p>
+            </td>
             <td class="destino" :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">
-                {{ person.destino }}<span v-if="checkLength(index, person.selectedItem, person.id)">*<br> 
+                {{ person.destino }}<span v-if="checkLength(index, person.selectedItem, person.userId)">*<br> 
                     <small style="color: red; font-style: italic;font-size: 11px; line-height: 0">*Destino provisional, aspirantes con mayor prioridad aun no han seleccionado sus destinos</small>
                 </span>
             </td>
             <td :style="!person.selectedItem ? 'color:darkgray; font-style: italic' : ''">{{ person.ciudad }}</td>
-            <td>
-                <p role="link" style="margin: 0;" @click="openModal(person, index)">Elegir destinos</p>
-            </td>
             </tr>
         </tbody>
         </table>
@@ -162,9 +163,9 @@ const isScrollbarVisible = () => {
     @closeModalEmit="closeModal"
     :destinos=position
     :nombre="nombre"
-    :id="id"
-    :hasDestinies="hasChosenDestinies(id)"
-    :destiniesArr="passDestiniesArr(id)"
+    :id="userId"
+    :hasDestinies="hasChosenDestinies(userId)"
+    :destiniesArr="passDestiniesArr(userId)"
     />
   </template>
   

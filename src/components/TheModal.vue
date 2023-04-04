@@ -3,8 +3,10 @@
 import { storeToRefs } from 'pinia';
 import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
-import { ref, watchEffect, watch } from 'vue';
-import Draggable from 'vuedraggable';
+import { ref, watchEffect } from 'vue';
+import { apiClient } from '../js/apiClient'
+ import Draggable from 'vuedraggable';
+
 
 const props = defineProps({
   destinos: {
@@ -48,6 +50,13 @@ const allAreChosen = ref(false)
 
 const chosenDestinies = ref([])
 
+const stepOne = ref(null)
+const stepTwo = ref(null)
+
+const maxHeight = {
+  maxHeight: ref('auto')
+}
+
 watchEffect(() => {
   destinyRef.value = props.destinos
   idRef.value = props.id
@@ -57,6 +66,7 @@ watchEffect(() => {
     allAreChosen.value = hasDestiniesRef.value
     chosenDestinies.value = destiniesArrRef.value
     isSelectable.value = !destiniesArrRef.value
+    maxHeight.maxHeight.value = (stepTwo.value.offsetHeight + 100) + 'px'
   }
 });
 
@@ -85,6 +95,9 @@ function deleteDestiny(destiny){
   allAreChosen.value = false
   isSelectable.value = true
   modalScroll.value.scrollTo(0,0);
+  setTimeout(function(){
+    maxHeight.maxHeight.value = (stepOne.value.offsetHeight + 100) + 'px'
+  }, 500)
 }
 const emit = defineEmits(['closeModalEmit'])
 
@@ -93,32 +106,44 @@ function closeModal(){
   location.reload()
 }
 
-function sendDestinies(){
+async function sendDestinies(){
+  let data = {
+        userId: idRef.value,
+        destiniesArr: JSON.stringify(chosenDestinies.value)
+    }
+    try {
+        let res = await apiClient.post('https://x8ki-letl-twmt.n7.xano.io/api:BYuPNyow/destiniesarr', data)
+        console.log('exito')
+    } catch (error) {
+        console.log(error)
+    }finally{
+      // modalIsOpen.value = false
+    }
   if(localStorage.getItem('destiniesArr')){
     const destiniesArrStringFromStorage = localStorage.getItem('destiniesArr')
     const destiniesArrFromStoraege = JSON.parse(destiniesArrStringFromStorage)
     const destiniesArr = [...destiniesArrFromStoraege,
       {
-      id: idRef.value,
+      userId: idRef.value,
       destiniesArr: chosenDestinies.value
       } 
     ]
     const destiniesArrString = JSON.stringify(destiniesArr)
     localStorage.setItem("destiniesArr", destiniesArrString);
     modalIsOpen.value = false
-    location.reload()
+    // location.reload()
     return
   }
 
   const destiniesArr = [{
-    id: idRef.value,
+    userId: idRef.value,
     destiniesArr: chosenDestinies.value
   }]
   
   const destiniesArrString = JSON.stringify(destiniesArr)
   localStorage.setItem("destiniesArr", destiniesArrString);
   location.reload()
-  modalIsOpen.value = false
+
 }
 
 </script>
@@ -139,11 +164,13 @@ function sendDestinies(){
               Paso 1: Elegir destinos
               <span style="font-size: 12px;">- Ordénalos en el siguiente paso</span>
           </h3>
-          <div id="collapseOne" class="accordion-collapse" :class="!allAreChosen ? 'collapse show' : 'collapsed'">
-            <div class="item-card" v-for="destiny in getDestinies" @click="checkDestiniesChosen(destiny)" :class="{'is-selected': chosenDestinies.find(chosenDestiny => chosenDestiny.code === destiny.code)}">
+          <div id="collapseOne" class="accordion-collapse" :class="!allAreChosen ? 'collapse show' : 'collapsed'" ref="stepOne">
+            <div class="wrapper-padding">
+              <div class="item-card" v-for="destiny in getDestinies" @click="checkDestiniesChosen(destiny)" :class="{'is-selected': chosenDestinies.find(chosenDestiny => chosenDestiny.code === destiny.code)}">
               <p class="item-p">Destino: {{ destiny.destino }}</p>
               <p class="item-p">Ciudad: {{ destiny.ciudad }}</p>
               <p class="item-p">Código: {{ destiny.code }}</p>
+            </div>
             </div>
           </div>
         </div>
@@ -151,9 +178,9 @@ function sendDestinies(){
           <h3 class="heading" :class="!allAreChosen ? 'h-disabled' : ''">
               Paso 2: Ordena los destinos elegidos
           </h3>
-          <draggable v-model="chosenDestinies" handle=".handle" class="accordion-collapse" :class="allAreChosen ? 'collapse show' : 'collapsed'" tag="div" :animation="300" itemKey="draggeable" group="destinations">
+          <draggable v-model="chosenDestinies" handle=".handle" class="accordion-collapse stepTwo" :class="allAreChosen ? 'collapse show' : 'collapsed'" tag="div" :animation="300" itemKey="draggeable" group="destinations" ref="stepTwo">
             <template #item="{ element: destiny }">
-              <div class="item-card">
+                <div class="item-card">
                 <div class="handle">
                   <svg viewBox="0 0 100 80" width="16" height="16">
                     <rect width="100" height="20"></rect>
@@ -168,7 +195,7 @@ function sendDestinies(){
                   <p>Código: {{ destiny.code }}</p>
                 </div>
                 <div>
-                  <a href="#" @click="deleteDestiny(destiny)">Eliminar</a>
+                  <a href="#" @click="deleteDestiny(destiny)" style="color: red">Eliminar</a>
                 </div>
               </div>
             </template>
@@ -283,21 +310,17 @@ p{
 }
 
 .accordion-collapse{
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+
   border: 1px solid gray;
-  padding: 1rem;
   border-top: 0;
   overflow: hidden;
-  max-height: auto;
-  transition:  padding ease-in-out 0.5s;
+  max-height: v-bind('maxHeight.maxHeight.value');
+  transition: max-height 500ms ease-in;
 }
 
-.collapsed{
+.collapsed{   
   max-height: 0;
-  padding: 0;
-  transition: padding ease-in-out 0.5s;
+  transition: max-height 500ms ease-in;
 
 }
 
@@ -324,6 +347,20 @@ button{
   right: 2%;
   top: 2%;
   cursor: grab
+}
+
+.wrapper-padding{
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.stepTwo{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 </style>
