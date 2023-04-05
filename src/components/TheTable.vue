@@ -2,29 +2,27 @@
 import { people } from '../js/people';
 import TheModal from './TheModal.vue'
 import { useModalStore } from '../stores/modal.js'
-import { useDestiniesStore } from '../stores/destiniesFromStorage.js'
 import { storeToRefs } from 'pinia';
-import { ref, onBeforeMount } from 'vue';
+import { onBeforeMount, ref } from 'vue';
+import { getDestiniesFromStorage } from '../js/destinesFromStorage'
+
+let uniqueDestinations = ref([])
 
 const useModal = useModalStore()
-const useDestinies = useDestiniesStore()
-
 
 let { modalIsOpen } = storeToRefs(useModal)
-let { uniqueDestinations } = storeToRefs(useDestinies)
 
 let position = ref(null)
 let nombre = ref('')
 let userId = ref(null)
 let arrPeople = people
+let isLoaded = ref(false)
 
 let destiniesChosen = []
 
-console.log(uniqueDestinations)
-
 function calculateDestiny(){
-    if(!uniqueDestinations)return
-    uniqueDestinations.forEach((data) => {
+    if(uniqueDestinations.value.length < 1)return
+    Array.from(uniqueDestinations.value).forEach((data) => {
         let isPresent = arrPeople.some(person => person.userId === data.userId)
         if(isPresent){
             data.destiniesArr.forEach(destiny => {
@@ -46,27 +44,36 @@ function calculateDestiny(){
 
 function checkLength(index, selectedItem){
     if(selectedItem){
-        return index + 1 !== uniqueDestinations[index]?.userId
+        return index + 1 !== uniqueDestinations.value[index]?.userId
     }
     return false
 }
 
 
 function hasChosenDestinies(id){
-    return uniqueDestinations.some(destiny => destiny.id === id)
+    return Array.from(uniqueDestinations.value).some(destiny => destiny.id === id)
 }
 
 function passDestiniesArr(id){
-    console.log(uniqueDestinations)
-    let arrFound = uniqueDestinations.find(destiny => destiny.id === id)
+    let arrFound = Array.from(uniqueDestinations.value).find(destiny => destiny.id === id)
     if(arrFound)return arrFound?.destiniesArr
     return []
 }
 
-passDestiniesArr()
+async function getDataTable(){
+    try{
+        let res = await getDestiniesFromStorage()
+        uniqueDestinations.value = res.uniqueDestinations
+        console.log(uniqueDestinations.value)
+        calculateDestiny()
+        isLoaded.value = true
+    }catch(e){
+        console.log(e)
+    }
+}
 
 onBeforeMount(() => {
-    calculateDestiny()
+    getDataTable()
 })
 
 
@@ -132,8 +139,10 @@ const isScrollbarVisible = () => {
 
 </script>
 
+
 <template>
-    <figure>
+    <div v-if="isLoaded">
+        <figure>
         <table role="grid">
         <thead>
             <tr>
@@ -167,6 +176,10 @@ const isScrollbarVisible = () => {
     :hasDestinies="hasChosenDestinies(userId)"
     :destiniesArr="passDestiniesArr(userId)"
     />
+    </div>
+    <div v-else>
+        ... Loading
+    </div>
   </template>
   
 <style scoped>

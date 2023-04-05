@@ -5,7 +5,7 @@ import { useModalStore } from '../stores/modal'
 import { destinies } from '../js/destinies';
 import { ref, watchEffect } from 'vue';
 import { apiClient } from '../js/apiClient'
- import Draggable from 'vuedraggable';
+import Draggable from 'vuedraggable';
 
 
 const props = defineProps({
