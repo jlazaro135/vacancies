@@ -113,36 +113,14 @@ async function sendDestinies(){
     }
     try {
         let res = await apiClient.post('https://x8ki-letl-twmt.n7.xano.io/api:BYuPNyow/destiniesarr', data)
-        console.log('exito')
+        location.reload()
     } catch (error) {
         console.log(error)
     }finally{
       // modalIsOpen.value = false
     }
-  if(localStorage.getItem('destiniesArr')){
-    const destiniesArrStringFromStorage = localStorage.getItem('destiniesArr')
-    const destiniesArrFromStoraege = JSON.parse(destiniesArrStringFromStorage)
-    const destiniesArr = [...destiniesArrFromStoraege,
-      {
-      userId: idRef.value,
-      destiniesArr: chosenDestinies.value
-      } 
-    ]
-    const destiniesArrString = JSON.stringify(destiniesArr)
-    localStorage.setItem("destiniesArr", destiniesArrString);
-    modalIsOpen.value = false
-    // location.reload()
-    return
-  }
-
-  const destiniesArr = [{
-    userId: idRef.value,
-    destiniesArr: chosenDestinies.value
-  }]
   
-  const destiniesArrString = JSON.stringify(destiniesArr)
-  localStorage.setItem("destiniesArr", destiniesArrString);
-  location.reload()
+
 
 }
 
