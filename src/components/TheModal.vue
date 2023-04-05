@@ -117,7 +117,7 @@ async function sendDestinies(){
     } catch (error) {
         console.log(error)
     }finally{
-      // modalIsOpen.value = false
+      modalIsOpen.value = false
     }
   
 

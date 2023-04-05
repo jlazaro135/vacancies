@@ -51,11 +51,13 @@ function checkLength(index, selectedItem){
 
 
 function hasChosenDestinies(id){
-    return Array.from(uniqueDestinations.value).some(destiny => destiny.id === id)
+    console.log(id)
+    return Array.from(uniqueDestinations.value).some(destiny => destiny.userId === id)
 }
 
 function passDestiniesArr(id){
-    let arrFound = Array.from(uniqueDestinations.value).find(destiny => destiny.id === id)
+    let arrFound = Array.from(uniqueDestinations.value).find(destiny => destiny.userId === id)
+    console.log(arrFound)
     if(arrFound)return arrFound?.destiniesArr
     return []
 }
@@ -178,7 +180,7 @@ const isScrollbarVisible = () => {
     />
     </div>
     <div v-else>
-        ... Loading
+        <h4 aria-busy="true" style="text-align: center;">Cargando Tabla...</h4>
     </div>
   </template>
   
