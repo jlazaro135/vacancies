@@ -12,6 +12,7 @@ import TheTable from './components/TheTable.vue';
         <li>Haz click en tu nombre para seleccionar los destinos</li>
         <li>En el primer paso selecciona los destinos. Tendrás que elegir tantos destinos como posición ocupes.</li>
         <li>En el segundo paso ordena los destinos de mayor a menor prioridad</li>
+        <li>Los resultados siempre serán ORIENTATIVOS Y NO VICUNLANTES</li>
       </ol>
     </header>
     <TheTable />
